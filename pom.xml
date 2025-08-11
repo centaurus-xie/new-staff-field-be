@@ -1,78 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<!-- 继承 Spring Boot 3.5.4 -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> <!-- 不从本地查找父 POM -->
 	</parent>
+
 	<groupId>com.example</groupId>
 	<artifactId>new-staff-field-be</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>new-staff-field-be</name>
-	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<description>Backend service for staff field management</description>
+
 	<properties>
+		<!-- 指定 Java 版本为 17 -->
 		<java.version>17</java.version>
+
+		<!-- 显式指定 maven-compiler-plugin 版本以支持 Java 17 的 -release -->
+		<maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+
+		<!-- 项目编码 -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<!-- Lombok 版本 -->
+		<lombok.version>1.18.30</lombok.version>
 	</properties>
+
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
+		<!-- Spring Boot Web Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Spring Data JPA -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- Spring Boot Actuator (监控) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- MySQL 驱动 -->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- Lombok (简化代码) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Spring Boot 测试支持 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- H2 Database (可选：用于测试) -->
+		<!--
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- 编译插件：必须升级到 3.13.0 支持 Java 17 的 -release -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<!-- 不指定 version，使用 Spring Boot 管理的版本 -->
+				<!--
+				<version>${maven.compiler.plugin.version}</version>
+				-->
 				<configuration>
+					<release>17</release>
+					<encoding>UTF-8</encoding>
+					<source>17</source>
+					<target>17</target>
+					<!-- 启用 Lombok 注解处理器 -->
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
 						</path>
+						<!-- 如果使用 MapStruct 等其他 APT，也应添加 -->
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+
+			<!-- Spring Boot 打包插件 -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${project.parent.version}</version>
 				<configuration>
 					<excludes>
 						<exclude>
@@ -80,9 +124,27 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<!-- 可选：指定 mainClass -->
+					<!--
+                    <mainClass>com.example.newstafffieldbe.NewStaffFieldBeApplication</mainClass>
+                    -->
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<!-- 可选：配置仓库（如需要） -->
+	<!--
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    -->
 
 </project>
