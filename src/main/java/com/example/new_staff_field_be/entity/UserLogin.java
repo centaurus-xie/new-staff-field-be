@@ -16,6 +16,9 @@ public class UserLogin {
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
+    @Column(name = "salt", length = 64, nullable = false) // 盐值通常为16-64位随机字符串
+    private String salt;
+
     @Column(name = "nickname", length = 50)
     private String nickname;
 
@@ -60,6 +63,13 @@ public class UserLogin {
         this.password = password;
     }
 
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
     public String getNickname() {
         return nickname;
     }
