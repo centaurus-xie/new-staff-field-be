@@ -10,6 +10,8 @@ package com.example.new_staff_field_be.controller;
 
         import java.security.SecureRandom;
         import java.util.Base64;
+        import java.util.HashMap;
+        import java.util.Map;
         import java.util.concurrent.ConcurrentHashMap;
         // 导入盐值工具类
         import com.example.new_staff_field_be.util.PasswordUtils;
@@ -36,14 +38,17 @@ public class UserLoginController {
     }
     // 用户注册
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserLogin userLogin) {
+    public ResponseEntity<?> registerUser(@RequestBody UserLogin userLogin) {
         String username = userLogin.getUsername();
         String frontendEncryptedPassword = userLogin.getPassword();
 
         // 验证前端是否已获取盐值（从缓存中获取）
         String cachedSalt = tempSaltCache.get(username);
         if (cachedSalt == null) {
-            return new ResponseEntity<>("Please get salt first (call /salt endpoint)", HttpStatus.BAD_REQUEST);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "缓存错误");
+            return new ResponseEntity<>(errorResponse, HttpStatus.OK);
         }
 
         // 使用缓存盐值进行二次加密（而非重新生成）
@@ -55,18 +60,26 @@ public class UserLoginController {
         userLoginRepository.save(userLogin);
         tempSaltCache.remove(username); // 注册成功后清除缓存
 
-        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+
+        // 成功响应：返回 { "success": true, "message": "..." }
+        Map<String, Object> successResponse = new HashMap<>();
+        successResponse.put("success", true);
+        successResponse.put("message", "User registered successfully");
+        return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
     // 用户登陆
     @PostMapping("/login")
-    public ResponseEntity<UserLogin> loginUser(@RequestBody UserLogin userLogin) {
+    public ResponseEntity<?> loginUser(@RequestBody UserLogin userLogin) {
         String username = userLogin.getUsername();
         String frontendEncryptedPassword = userLogin.getPassword(); // 前端加密后的密码
 
         // 1. 查询用户信息
         UserLogin existingUser = userLoginRepository.findByUsername(username);
         if (existingUser == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 用户名不存在
+            // 用户名不存在：返回 { "success": false }
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
 
         // 2. 使用存储的盐值进行二次加密验证
@@ -75,13 +88,19 @@ public class UserLoginController {
 
         // 3. 对比二次加密后的密码与数据库存储的密码
         if (!encryptedPasswordToCheck.equals(existingUser.getPassword())) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 密码错误
+            // 密码错误：返回 { "success": false }
+            Map<String, Boolean> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            return ResponseEntity.status(HttpStatus.OK).body(errorResponse);
         }
 
         // 4. 返回用户信息（注意：避免返回密码和盐值等敏感信息）
         existingUser.setPassword(null); // 清除密码
         existingUser.setSalt(null); // 清除盐值
-        return new ResponseEntity<>(existingUser, HttpStatus.OK);// 返回200状态码和用户信息
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true); // 添加 success 字段
+        response.put("user", existingUser); // 用户信息
+        return ResponseEntity.ok(response);
     }
 
 
