@@ -3,6 +3,7 @@ package com.example.new_staff_field_be.controller;
 
         import com.example.new_staff_field_be.entity.UserLogin;
         import com.example.new_staff_field_be.repository.UserLoginRepository;
+        import jakarta.servlet.http.HttpSession;
         import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.http.HttpStatus;
         import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class UserLoginController {
 
     @Autowired
     private UserLoginRepository userLoginRepository;
+    @Autowired
+    private HttpSession session;
+
     /**
      * 检查用户名是否已存在
      * @param username 待检查的用户名
@@ -99,7 +103,8 @@ public class UserLoginController {
         existingUser.setSalt(null); // 清除盐值
         Map<String, Object> response = new HashMap<>();
         response.put("success", true); // 添加 success 字段
-        response.put("user", existingUser); // 用户信息
+        // response.put("user", existingUser); // 用户信息
+        session.setAttribute("loggedInUser", username);
         return ResponseEntity.ok(response);
     }
 
