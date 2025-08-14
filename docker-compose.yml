@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: auth-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_secure_root_password_here
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: your_production_password_here
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - auth-network
+
+  backend:
+    build: ./backend
+    container_name: auth-backend
+    restart: always
+    ports:
+      - "9001:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/auth_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=auth_user
+      - SPRING_DATASOURCE_PASSWORD=your_production_password_here
+    depends_on:
+      - mysql
+    networks:
+      - auth-network
+
+  frontend:
+    build: ./frontend
+    container_name: auth-frontend
+    restart: always
+    ports:
+      - "9000:80"
+    depends_on:
+      - backend
+    networks:
+      - auth-network
+
+volumes:
+  mysql_data:
+
+networks:
+  auth-network:
+    driver: bridge
