@@ -55,7 +55,7 @@ public class UserLoginController {
             return new ResponseEntity<>(errorResponse, HttpStatus.OK);
         }
 
-        // 使用缓存盐值进行二次加密（而非重新生成）
+        // 使用缓存盐值进行二次加密
         String finalEncryptedPassword = PasswordUtils.secondaryEncrypt(frontendEncryptedPassword, cachedSalt);
         userLogin.setPassword(finalEncryptedPassword);
         userLogin.setSalt(cachedSalt); // 存入缓存的盐值（确保与前端使用的一致）
@@ -98,7 +98,7 @@ public class UserLoginController {
             return ResponseEntity.status(HttpStatus.OK).body(errorResponse);
         }
 
-        // 4. 返回用户信息（注意：避免返回密码和盐值等敏感信息）
+        // 4. 返回用户信息
         existingUser.setPassword(null); // 清除密码
         existingUser.setSalt(null); // 清除盐值
         Map<String, Object> response = new HashMap<>();
