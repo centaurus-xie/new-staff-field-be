@@ -83,7 +83,7 @@ public class UserLoginController {
             // 用户名不存在：返回 { "success": false }
             Map<String, Boolean> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.OK).body(errorResponse);
         }
 
         // 2. 使用存储的盐值进行二次加密验证

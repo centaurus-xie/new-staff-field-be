@@ -20,7 +20,10 @@ public class PasswordUtils {
      * @return 二次加密后的密码（存入数据库）
      */
     public static String secondaryEncrypt(String frontendEncryptedPassword, String salt) {
-        return sha256(frontendEncryptedPassword + salt); // 密码+盐值拼接后加密
+        if (frontendEncryptedPassword == null || salt == null) {
+            throw new IllegalArgumentException("参数不能为null");
+        }
+        return sha256(frontendEncryptedPassword + salt);
     }
 
     /**
